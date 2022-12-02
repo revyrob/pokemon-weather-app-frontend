@@ -134,7 +134,7 @@ export default function UploadPage() {
   //call the get location first
   //then if
   useEffect(() => {
-    while (currentLocation === null) {
+    while (!currentLocation) {
       getGeoLocation();
     }
     getTemp();
