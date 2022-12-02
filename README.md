@@ -1,3 +1,4 @@
+
 ## Pokemon Weather Application - Client
 
 A one-page mobile phone pokemon weather application built for a 5 hour hackathon with <a href="https://github.com/kai0716">Kevin</a>.  
@@ -25,6 +26,5 @@ To run the application you will need to run the backend simultaneously
 You will find the backend in revyrob's repos under <a href="">pokemon-weather-server</a>.
 
 Follow README for the backend to start the server.
-
 
 

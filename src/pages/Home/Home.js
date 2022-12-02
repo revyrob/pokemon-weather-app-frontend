@@ -49,7 +49,28 @@ export default function UploadPage() {
             const fog = response.data.data[0].fog;
             setTemp(app_temp);
             setCity(city);
-            getMocktails();
+
+            //for setting the mocktail
+            axios.get(`http://localhost:8080/Mocktails`).then((response) => {
+              response.data.map((e) => {
+                if (app_temp < 0) {
+                  if (e.weather == "cold") {
+                    setMocktails(e.name); //set to picture of cloud
+                    setMocktailsIng(e.method);
+                  }
+                } else if (app_temp < 20) {
+                  if (e.weather == "warm") {
+                    setMocktails(e.name); //set to picture of cloud
+                    setMocktailsIng(e.method);
+                  }
+                } else {
+                  if (e.weather == "hot") {
+                    setMocktails(e.name); //set to picture of cloud
+                    setMocktailsIng(e.method);
+                  }
+                }
+              });
+            });
             //set the background image
             if (precip >= 1) {
               axios
@@ -87,34 +108,6 @@ export default function UploadPage() {
       //alert!
       alert(`Geolocation is not supported by your browser.`);
     }
-  };
-
-  //get mocktails, called this within the geolocation function
-  const getMocktails = () => {
-    axios
-      .get(`http://localhost:8080/Mocktails`)
-      .then((response) => {
-        response.data.map((e) => {
-          if (temp <= -15) {
-            if (e.weather === "cold") {
-              setMocktails(e.name); //set to picture of cloud
-              setMocktailsIng(e.method);
-            }
-          } else if (temp <= 0) {
-            if (e.weather === "warm") {
-              setMocktails(e.name); //set to picture of cloud
-              setMocktailsIng(e.method);
-            }
-          } else if (temp > 1) {
-            if (e.weather === "hot") {
-              setMocktails(e.name); //set to picture of cloud
-              setMocktailsIng(e.method);
-            }
-          }
-        });
-      })
-
-      .catch((err) => console.log(err));
   };
 
   //call the geolocation function and it will have the necessary functions follow with
