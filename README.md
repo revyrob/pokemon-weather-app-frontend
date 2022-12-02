@@ -23,7 +23,7 @@ npm start
 
 To run the application you will need to run the backend simultaneously
 
-You will find the backend in revyrob's repos under <a href="">pokemon-weather-server</a>.
+You will find the backend in revyrob's repos under <a href="https://github.com/revyrob/pokemon-weather-app-backend">pokemon-weather-server</a>.
 
 Follow README for the backend to start the server.
 
