@@ -28,8 +28,4 @@ You will find the backend in revyrob's repos under <a href="">pokemon-weather-se
 Follow README for the backend to start the server.
 
 
-<<<<<<< HEAD
-=======
-
 ![pokemon](https://user-images.githubusercontent.com/66695865/205389706-94accf50-305c-44e1-916d-80e633713743.png)
->>>>>>> 4ce2080e5d3e76f927e366240283bf32cd562a20
