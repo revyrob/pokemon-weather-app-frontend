@@ -28,3 +28,4 @@ Follow README for the backend to start the server.
 
 
 
+![pokemon](https://user-images.githubusercontent.com/66695865/205389706-94accf50-305c-44e1-916d-80e633713743.png)
