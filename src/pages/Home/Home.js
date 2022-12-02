@@ -9,7 +9,7 @@ export default function UploadPage() {
   const [background, setBackground] = useState(
     `http://localhost:8080/images/sun.jpg`
   ); //hardcoded picture of the sun from database
-  const [city, setCity] = useState("Vancouver");
+  const [city, setCity] = useState("No City");
 
   const [mocktail, setMocktails] = useState("");
   const [mocktailIng, setMocktailsIng] = useState("");
@@ -21,17 +21,18 @@ export default function UploadPage() {
 
   //current location and default is Vancouver,BC
   const [currentLocation, setCurrentLocation] = useState({
-    lat: 49.28507657283974,
-    lng: -123.11461581337777,
+    lat: null,
+    lng: null,
   });
 
   //Geolocation for user
   const getGeoLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        let userLat = position.coords.latitude;
-        let userLng = position.coords.longitude;
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
         setCurrentLocation({ lat: userLat, lng: userLng });
+        console.log(currentLocation);
       });
     } else {
       //alert!
@@ -46,7 +47,6 @@ export default function UploadPage() {
   //get the temperature
   //put the temperature in the data spot
   const getTemp = () => {
-    getGeoLocation();
     axios
       .get(`${urlWeather}`)
       .then((response) => {
@@ -58,11 +58,11 @@ export default function UploadPage() {
       })
       .catch((err) => console.log(err));
   };
+
   //default background it the sun picture
   //get precip
   //if precep is >=1 than rain picture
   const getBackground = () => {
-    getGeoLocation();
     axios
       .get(`${urlWeather}`)
       .then((response) => {
@@ -131,7 +131,12 @@ export default function UploadPage() {
   };
 
   //work on getting mocktail data once server is running
+  //call the get location first
+  //then if
   useEffect(() => {
+    while (currentLocation === null) {
+      getGeoLocation();
+    }
     getTemp();
     getBackground();
     getMocktails();
@@ -187,46 +192,50 @@ export default function UploadPage() {
     return array;
   }
 
-  return (
-    <div
-      className="pokemon"
-      style={{
-        backgroundImage: `url(${background})`,
-        height: "100",
-        width: "100",
-        backgroundSize: "cover",
-        backgroundRepeat: "none",
-      }}
-    >
-      <div className="pokemon__weather">
-        <div className="pokemon__weather-wrapper">
-          <p className="pokemon__weather-info">{temp}ºC</p>
-          <p className="pokemon__weather-info--city">{city}</p>
+  if (!currentLocation) {
+    <div>Loading..</div>;
+  } else {
+    return (
+      <div
+        className="pokemon"
+        style={{
+          backgroundImage: `url(${background})`,
+          height: "100",
+          width: "100",
+          backgroundSize: "cover",
+          backgroundRepeat: "none",
+        }}
+      >
+        <div className="pokemon__weather">
+          <div className="pokemon__weather-wrapper">
+            <p className="pokemon__weather-info">{temp}ºC</p>
+            <p className="pokemon__weather-info--city">{city}</p>
+          </div>
         </div>
-      </div>
-      <div className="content">
-        <p>A great mocktail to catch one of these pokemon....</p>
-        <p className="pokemon__mocktail-info">{mocktail}</p>
-      </div>
-      <div className="pokemon__mocktail">
-        <div className="pokemon__mocktail-wrapper">
-          <p className="pokemon__mocktail-p">{mocktailIng}</p>
+        <div className="content">
+          <p>A great mocktail to catch one of these pokemon....</p>
+          <p className="pokemon__mocktail-info">{mocktail}</p>
         </div>
-      </div>
-      <div className="pokemon__image">
-        <div className="marquee">
-          <div className="marquee-content">
-            {list &&
-              shuffleArray(list).map((e, i) => {
-                return (
-                  <div key={i} className="marquee-item">
-                    <img src={e.url} alt="pokemon image" />
-                  </div>
-                );
-              })}
+        <div className="pokemon__mocktail">
+          <div className="pokemon__mocktail-wrapper">
+            <p className="pokemon__mocktail-p">{mocktailIng}</p>
+          </div>
+        </div>
+        <div className="pokemon__image">
+          <div className="marquee">
+            <div className="marquee-content">
+              {list &&
+                shuffleArray(list).map((e, i) => {
+                  return (
+                    <div key={i} className="marquee-item">
+                      <img src={e.url} alt="pokemon image" />
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
