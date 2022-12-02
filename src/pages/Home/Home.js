@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function UploadPage() {
   //useState for weather in main bar
-  const [temp, setTemp] = useState("");
+  const [temp, setTemp] = useState(0);
   const [background, setBackground] = useState(
     `http://localhost:8080/images/sun.jpg`
   ); //hardcoded picture of the sun from database
@@ -21,18 +21,67 @@ export default function UploadPage() {
 
   //current location and default is Vancouver,BC
   const [currentLocation, setCurrentLocation] = useState({
-    lat: null,
-    lng: null,
+    userLat: null,
+    userLng: null,
   });
+
+  //variables for weather locations, API key, and the weatherbit url
+  const apiKey = `${process.env.REACT_APP_APIKEY}`;
 
   //Geolocation for user
   const getGeoLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        setCurrentLocation({ lat: userLat, lng: userLng });
-        console.log(currentLocation);
+        const location = {
+          userLat: position.coords.latitude,
+          userLng: position.coords.longitude,
+        };
+        setCurrentLocation({ location });
+        const urlWeather = `https://api.weatherbit.io/v2.0/current?lat=${location.userLat}&lon=${location.userLng}&key=${apiKey}`;
+        axios
+          .get(urlWeather)
+          .then((response) => {
+            const app_temp = response.data.data[0].app_temp;
+            const city = response.data.data[0].city_name;
+            const precip = response.data.data[0].precip;
+            const snow = response.data.data[0].snow;
+            const cloud = response.data.data[0].clouds;
+            const fog = response.data.data[0].fog;
+            setTemp(app_temp);
+            setCity(city);
+            getMocktails();
+            //set the background image
+            if (precip >= 1) {
+              axios
+                .get(`http://localhost:8080/images/rain.jpg`)
+                .then((response) => {
+                  setBackground(`http://localhost:8080/images/rain.jpg`); //set to picture of rain
+                })
+                .catch((err) => console.log(err));
+            } else if (snow >= 1) {
+              axios
+                .get(`http://localhost:8080/images/snow.jpg`)
+                .then((response) => {
+                  setBackground(`http://localhost:8080/images/snow.jpg`); //set to picture of snow
+                })
+                .catch((err) => console.log(err));
+            } else if (cloud > 50) {
+              axios
+                .get(`http://localhost:8080/images/clouds.jpg`)
+                .then((response) => {
+                  setBackground(`http://localhost:8080/images/clouds.jpg`); //set to picture of cloud
+                })
+                .catch((err) => console.log(err));
+            } else if (fog >= 35) {
+              axios
+                .get(`http://localhost:8080/images/fog.jpg`)
+                .then((response) => {
+                  setBackground(`http://localhost:8080/images/fog.jpg`);
+                })
+                .catch((err) => console.log(err));
+            }
+          })
+          .catch((err) => console.log(err));
       });
     } else {
       //alert!
@@ -40,86 +89,23 @@ export default function UploadPage() {
     }
   };
 
-  //variables for weather locations, API key, and the weatherbit url
-  const apiKey = `${process.env.REACT_APP_APIKEY}`;
-  const urlWeather = `https://api.weatherbit.io/v2.0/current?lat=${currentLocation.lat}&lon=${currentLocation.lng}&key=${apiKey}`;
-
-  //get the temperature
-  //put the temperature in the data spot
-  const getTemp = () => {
-    axios
-      .get(`${urlWeather}`)
-      .then((response) => {
-        const app_temp = response.data.data[0].app_temp;
-        const city = response.data.data[0].city_name;
-        setTemp(app_temp);
-        setCity(city);
-        console.log(response.data.data[0]);
-      })
-      .catch((err) => console.log(err));
-  };
-
-  //default background it the sun picture
-  //get precip
-  //if precep is >=1 than rain picture
-  const getBackground = () => {
-    axios
-      .get(`${urlWeather}`)
-      .then((response) => {
-        const precip = response.data.data[0].precip;
-        const snow = response.data.data[0].snow;
-        const cloud = response.data.data[0].clouds;
-        const fog = response.data.data[0].fog;
-        if (precip >= 1) {
-          axios
-            .get(`http://localhost:8080/images/rain.jpg`)
-            .then((response) => {
-              setBackground(`http://localhost:8080/images/rain.jpg`); //set to picture of rain
-            })
-            .catch((err) => console.log(err));
-        } else if (snow >= 1) {
-          axios
-            .get(`http://localhost:8080/images/snow.jpg`)
-            .then((response) => {
-              setBackground(`http://localhost:8080/images/snow.jpg`); //set to picture of snow
-            })
-            .catch((err) => console.log(err));
-        } else if (cloud > 50) {
-          axios
-            .get(`http://localhost:8080/images/clouds.jpg`)
-            .then((response) => {
-              setBackground(`http://localhost:8080/images/clouds.jpg`); //set to picture of cloud
-            })
-            .catch((err) => console.log(err));
-        } else if (fog >= 35) {
-          axios
-            .get(`http://localhost:8080/images/fog.jpg`)
-            .then((response) => {
-              setBackground(`http://localhost:8080/images/fog.jpg`);
-            })
-            .catch((err) => console.log(err));
-        }
-      })
-      .catch((err) => console.log(err));
-  };
-
-  //get mocktails
+  //get mocktails, called this within the geolocation function
   const getMocktails = () => {
     axios
       .get(`http://localhost:8080/Mocktails`)
       .then((response) => {
         response.data.map((e) => {
-          if (temp <= 5) {
+          if (temp <= -15) {
             if (e.weather === "cold") {
               setMocktails(e.name); //set to picture of cloud
               setMocktailsIng(e.method);
             }
-          } else if (temp <= 15) {
+          } else if (temp <= 0) {
             if (e.weather === "warm") {
               setMocktails(e.name); //set to picture of cloud
               setMocktailsIng(e.method);
             }
-          } else if (temp > 15) {
+          } else if (temp > 1) {
             if (e.weather === "hot") {
               setMocktails(e.name); //set to picture of cloud
               setMocktailsIng(e.method);
@@ -127,19 +113,14 @@ export default function UploadPage() {
           }
         });
       })
+
       .catch((err) => console.log(err));
   };
 
-  //work on getting mocktail data once server is running
-  //call the get location first
-  //then if
+  //call the geolocation function and it will have the necessary functions follow with
+  //the correct geolocation
   useEffect(() => {
-    while (!currentLocation) {
-      getGeoLocation();
-    }
-    getTemp();
-    getBackground();
-    getMocktails();
+    getGeoLocation();
   }, []);
 
   const findPokemonWithName = (pokemonName) => {
